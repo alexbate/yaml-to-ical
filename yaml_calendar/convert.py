@@ -37,7 +37,7 @@ class YamlCalConverter():
 
     @staticmethod
     def generate_series_datetimes(start_date, periods, start_time, end_time,
-                                  days, repeat, tz, time_mode):
+                                  days, repeat, tz, start_offset, end_offset):
         d = start_date
         results = []
 
@@ -56,9 +56,10 @@ class YamlCalConverter():
 
             start = datetime.combine(d, time()) + timedelta(seconds=start_time)
             end = datetime.combine(d, time()) + timedelta(seconds=end_time)
-            if(time_mode=='cambridge_time'):
-              start += timedelta(minutes=5)
-              end -= timedelta(minutes=5)
+            if start_offset:
+              start += timedelta(minutes=start_offset)
+            if end_offset:
+              end += timedelta(minutes=end_offset)
             start = tz.localize(start)
             end = tz.localize(end)
             results.append((start, end))
@@ -98,7 +99,7 @@ class YamlCalConverter():
 
             dates = YamlCalConverter.generate_series_datetimes(
                 start_date, periods, event['start_time'],
-                event['end_time'], days, repeat, tz, self.options['time_mode'])
+                event['end_time'], days, repeat, tz, self.options['start_offset'], self.options['end_offset'])
 
             index_offset = event.get('start_at', 1)
             total = event.get('out_of', repeat)
